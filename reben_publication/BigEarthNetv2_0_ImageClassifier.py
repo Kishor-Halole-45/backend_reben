@@ -2,6 +2,7 @@
 This is a script for supervised image classification using the BigEarthNet v2.0 dataset.
 """
 # import packages
+import argparse
 from typing import List, Optional
 
 import lightning.pytorch as pl
@@ -187,3 +188,38 @@ class BigEarthNetv2_0_ImageClassifier(pl.LightningModule, PyTorchModelHubMixin):
     def forward(self, batch):
         # because we are a wrapper, we call the inner function manually
         return self.model(batch)
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Load a pretrained BigEarthNet v2.0 image classifier from Hugging Face."
+    )
+    parser.add_argument(
+        "--model-name",
+        type=str,
+        default="hackelle/resnet18-all-v0.1.1",
+        help="Hugging Face model ID (for example: hackelle/resnet18-all-v0.1.1)",
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="cpu",
+        choices=["cpu", "cuda"],
+        help="Device used for the loaded model.",
+    )
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    args = _parse_args()
+    device = torch.device(args.device if args.device == "cuda" and torch.cuda.is_available() else "cpu")
+    model = BigEarthNetv2_0_ImageClassifier.from_pretrained(args.model_name)
+    model.to(device)
+    model.eval()
+    print(f"Loaded model: {args.model_name}")
+    print(f"Model type: {type(model).__name__}")
+    print(f"Network type: {model.config.network_type}")
+    print(f"Classes: {model.config.classes}")
+    print(f"Channels: {model.config.channels}")
+    print(f"Image size: {model.config.image_size}")
+    print(f"Device: {device}")
