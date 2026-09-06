@@ -10,6 +10,11 @@ python = ">=3.10, <3.12"
 configilm = { extras = ["full"], version = "^0.7.0" }
 wandb = "^0.17.1"
 numpy = "^1.26.4"
+fastapi = "^0.115.0"
+uvicorn = {extras = ["standard"], version = "^0.30.0"}
+transformers = "^4.45.0"
+python-multipart = "^0.0.9"
+pillow = "^10.4.0"
 
 ## uncomment for cuda 11
 # torch = "2.2.2"

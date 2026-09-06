@@ -34,3 +34,16 @@ artifacts/
 
 .DS_Store
 Thumbs.db
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Frontend build and dependencies
+frontend/node_modules/
+frontend/dist/
+
+# Deployment metadata
+.render/
+.vercel/

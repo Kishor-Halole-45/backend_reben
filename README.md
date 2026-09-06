@@ -10,6 +10,27 @@
 
 ## Pre-requisites
 
+## Grounding web app
+
+The repository now includes a React interface for query-driven object grounding. Upload a satellite image, type a request such as `buildings` or `roads and water`, and the OWLv2 detector returns matching rectangles over the image.
+
+Install the API dependencies with Poetry, then start the backend:
+
+```bash
+poetry install
+poetry run uvicorn api_server:app --reload --port 8000
+```
+
+In a second terminal, start the React client:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`. The first grounding request downloads the OWLv2 checkpoint from Hugging Face and caches it locally. GPU is used automatically when CUDA is available.
+
 We recommend using the pyproject.toml file to install the required dependencies based on
 [Poetry](https://python-poetry.org/). For use with Poetry, CUDA 12.x is required. To use CUDA 11.x, the commented lines
 in the pyproject.toml file have to be uncommented. To install the dependencies using Poetry, run `poetry install`.
