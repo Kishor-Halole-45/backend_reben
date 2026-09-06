@@ -1,6 +1,7 @@
 """FastAPI service for query-driven image grounding."""
 
 import io
+import gc
 import os
 import re
 from functools import lru_cache
@@ -49,8 +50,24 @@ def _device() -> torch.device:
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
+def _release_other_models(active: str) -> None:
+    loaders = {
+        "grounding": load_grounding_model,
+        "classification": load_reben_model,
+        "caption": load_caption_model,
+        "vqa": load_vqa_model,
+    }
+    for name, loader in loaders.items():
+        if name != active:
+            loader.cache_clear()
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+
 @lru_cache(maxsize=1)
 def load_grounding_model() -> tuple[Owlv2Processor, Owlv2ForObjectDetection]:
+    _release_other_models("grounding")
     processor = Owlv2Processor.from_pretrained(MODEL_NAME)
     model = Owlv2ForObjectDetection.from_pretrained(MODEL_NAME).to(_device())
     model.eval()
@@ -59,6 +76,7 @@ def load_grounding_model() -> tuple[Owlv2Processor, Owlv2ForObjectDetection]:
 
 @lru_cache(maxsize=1)
 def load_reben_model():
+    _release_other_models("classification")
     from reben_publication.BigEarthNetv2_0_ImageClassifier import BigEarthNetv2_0_ImageClassifier
 
     model = BigEarthNetv2_0_ImageClassifier.from_pretrained(REBEN_MODEL_NAME).to(_device())
@@ -68,6 +86,7 @@ def load_reben_model():
 
 @lru_cache(maxsize=1)
 def load_caption_model() -> tuple[BlipProcessor, BlipForConditionalGeneration]:
+    _release_other_models("caption")
     processor = BlipProcessor.from_pretrained(CAPTION_MODEL_NAME)
     model = BlipForConditionalGeneration.from_pretrained(CAPTION_MODEL_NAME).to(_device())
     model.eval()
@@ -76,6 +95,7 @@ def load_caption_model() -> tuple[BlipProcessor, BlipForConditionalGeneration]:
 
 @lru_cache(maxsize=1)
 def load_vqa_model() -> tuple[ViltProcessor, ViltForQuestionAnswering]:
+    _release_other_models("vqa")
     processor = ViltProcessor.from_pretrained(VQA_MODEL_NAME)
     model = ViltForQuestionAnswering.from_pretrained(VQA_MODEL_NAME).to(_device())
     model.eval()

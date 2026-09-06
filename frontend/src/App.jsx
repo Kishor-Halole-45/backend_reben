@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Aperture, ArrowRight, Check, LoaderCircle, Radar, ScanSearch, Upload, X } from 'lucide-react'
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
 const PAGES = {
   orchestrate: { path: '', number: '00', label: 'Auto pilot', title: 'Let the image choose the model', description: 'Upload one image and ask naturally, or add a second date. The routing layer selects the right specialist automatically.', query: '', button: 'Analyze automatically' },
   grounding: { path: 'grounding', number: '01', label: 'Grounding', title: 'Find objects in orbit', description: 'Describe what you need to locate and the detector will tune itself to the image.', query: 'buildings', button: 'Find objects' },
@@ -61,7 +61,7 @@ function App() {
     const body = new FormData()
     body.append('file', file || beforeFile); body.append('mode', isOrchestrator ? 'orchestrate' : page); body.append('query', query)
     if (isCompare || isOrchestrator) { if (beforeFile) body.append('before_file', beforeFile); if (afterFile) body.append('after_file', afterFile) }
-    try { const response = await fetch(`${API_URL}/api/analyze`, { method: 'POST', body }); const data = await response.json(); if (!response.ok) throw new Error(data.detail || 'Model request failed'); setResult(data); setStatus('success') } catch (requestError) { setError(requestError.message); setStatus('error') }
+    try { const response = await fetch(`${API_URL}/api/analyze`, { method: 'POST', body }); const data = await response.json(); if (!response.ok) throw new Error(data.detail || 'Model request failed'); setResult(data); setStatus('success') } catch (requestError) { setError(requestError instanceof TypeError ? 'Cannot reach the API. Check that the backend is running and VITE_API_URL points to it.' : requestError.message); setStatus('error') }
   }
 
   function reset() { setFile(null); setPreview(''); setBeforeFile(null); setAfterFile(null); setBeforePreview(''); setAfterPreview(''); setResult(null); setError(''); setStatus('idle'); if (inputRef.current) inputRef.current.value = ''; if (beforeRef.current) beforeRef.current.value = ''; if (afterRef.current) afterRef.current.value = '' }
