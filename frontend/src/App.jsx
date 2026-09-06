@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Aperture, ArrowRight, Check, LoaderCircle, Radar, ScanSearch, Upload, X } from 'lucide-react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL
 const PAGES = {
   orchestrate: { path: '', number: '00', label: 'Auto pilot', title: 'Let the image choose the model', description: 'Upload one image and ask naturally, or add a second date. The routing layer selects the right specialist automatically.', query: '', button: 'Analyze automatically' },
   grounding: { path: 'grounding', number: '01', label: 'Grounding', title: 'Find objects in orbit', description: 'Describe what you need to locate and the detector will tune itself to the image.', query: 'buildings', button: 'Find objects' },
